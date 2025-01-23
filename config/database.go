@@ -14,7 +14,9 @@ type Dbinstance struct {
 var DB Dbinstance
 
 // connectDb
-func ConnectDb(env *Env) {
+func ConnectDb() {
+	env := NewEnv()
+
 	dsn := env.DBUrl
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{

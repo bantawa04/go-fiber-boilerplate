@@ -9,22 +9,23 @@ import (
 type Env struct {
 	APP_NAME  string `mapstructure:"APP_NAME"`
 	APP_DEBUG bool   `mapstructure:"APP_DEBUG"`
+	APP_ENV   string `mapstructure:"APP_ENV"`
 
 	SERVER_PORT string `mapstructure:"SERVER_PORT"`
 	DBUrl       string `mapstructure:"DATABASE_URL"`
 	TimeZone    string `mapstructure:"TZ"`
 }
 
-type EnvPath string
-
-func (p EnvPath) ToString() string {
-	return string(p)
-}
-
 // NewEnv creates a new environment
-func NewEnv(envPath EnvPath) Env {
+func NewEnv() Env {
 	env := Env{}
-	viper.SetConfigFile(envPath.ToString())
+	var envPath string
+	if env.APP_ENV == "testing" {
+		envPath = "env.testing"
+	} else {
+		envPath = "env"
+	}
+	viper.SetConfigFile(envPath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
