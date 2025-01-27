@@ -45,10 +45,10 @@ func NewApplication() *fiber.App {
                     log.Printf("failed to write to error log: %v", err)
                 }
             }
-        },
+        }, 
     }))
 
-    router.InstallRouter(app)
+    router.Setup(app)
 
     return app
 }
