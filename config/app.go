@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
 // Env has environment stored
@@ -19,19 +20,16 @@ type Env struct {
 // NewEnv creates a new environment
 func NewEnv() Env {
 	env := Env{}
-	var envPath string
-	if env.APP_ENV == "testing" {
-		envPath = "env.testing"
-	} else {
-		envPath = "env"
-	}
-	viper.SetConfigFile(envPath)
+	viper.SetConfigName(".env") // name of config file (without extension)
+	viper.SetConfigType("env")  // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath(".")    // optionally look for config in the working directory
+	viper.AutomaticEnv()        // read in environment variables that match
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Fatalf("☠️ Env config file not found: %+v", err)
+			log.Fatalf("☠️ .env file not found: %+v", err)
 		} else {
-			log.Fatalf("☠️ Env config file error: %+v", err)
+			log.Fatalf("☠️ Error reading .env file: %+v", err)
 		}
 	}
 

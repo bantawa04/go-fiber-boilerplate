@@ -1,9 +1,9 @@
 package router
 
 import (
-	"fiber-boilerplate/app/controller"
-	"fiber-boilerplate/app/repository"
-	"fiber-boilerplate/app/service"
+	"github.com/bantawao4/gofiber-boilerplate/app/controller"
+	"github.com/bantawao4/gofiber-boilerplate/app/repository"
+	"github.com/bantawao4/gofiber-boilerplate/app/service"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,7 +16,7 @@ func NewUserRouter(app *fiber.App) *UserRouter {
 	userRepo := repository.NewUserRepository()
 	userService := service.NewUserService(userRepo)
 	userController := controller.NewUserController(userService)
-	
+
 	return &UserRouter{
 		app:            app,
 		userController: userController,
@@ -25,5 +25,6 @@ func NewUserRouter(app *fiber.App) *UserRouter {
 
 func (r *UserRouter) Setup(api fiber.Router) {
 	users := api.Group("/users")
-	users.Get("/", r.userController.GetUsers)
+	users.Get("", r.userController.GetUsers)
+	users.Post("", r.userController.CreateUser)
 }

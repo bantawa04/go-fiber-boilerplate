@@ -18,6 +18,7 @@ services:
 
   database:
     image: postgres:alpine
+    container_name: database
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
