@@ -1,13 +1,17 @@
 package service
 
 import (
+	"math"
+
+	"github.com/bantawao4/gofiber-boilerplate/app/dao"
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/app/repository"
+	"github.com/bantawao4/gofiber-boilerplate/app/response"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
-	GetUsers() ([]model.UserModel, error)
+	GetUsers(page, perPage int) ([]dao.User, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
@@ -30,8 +34,21 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{userRepo: userRepo}
 }
 
-func (s *userService) GetUsers() ([]model.UserModel, error) {
-	return s.userRepo.GetUsers()
+func (s *userService) GetUsers(page, perPage int) ([]dao.User, *response.PaginationMeta, error) {
+	users, total, err := s.userRepo.GetUsers(page, perPage)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
+	meta := &response.PaginationMeta{
+		Page:       page,
+		PerPage:    perPage,
+		TotalPages: totalPages,
+		TotalItems: total,
+	}
+
+	return users, meta, nil
 }
 
 func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error) {

@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"github.com/bantawao4/gofiber-boilerplate/app/dao"
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/config"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	GetUsers() ([]model.UserModel, error)
+	GetUsers(page, perPage int) ([]dao.User, int64, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
@@ -23,10 +24,23 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) GetUsers() ([]model.UserModel, error) {
-	var users []model.UserModel
-	err := r.db.Find(&users).Error
-	return users, err
+func (r *userRepository) GetUsers(page, perPage int) ([]dao.User, int64, error) {
+	var users []dao.User
+	var total int64
+
+	// Get total count
+	if err := r.db.Table("users").Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated data
+	offset := (page - 1) * perPage
+	err := r.db.Table("users").Offset(offset).Limit(perPage).Scan(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, err
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
