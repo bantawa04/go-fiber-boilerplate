@@ -22,6 +22,7 @@ func NewApplication() *fiber.App {
 		AppName:       "Test App v1.0.1",
 	})
 	config.ConnectDb()
+
 	app.Use(idempotency.New())
 
 	app.Use(recover.New())

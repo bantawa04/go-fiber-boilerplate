@@ -9,6 +9,8 @@ import (
 type UserRepository interface {
 	GetUsers() ([]model.UserModel, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
+	ExistsByEmail(email string) bool
+	ExistsByPhone(phone string) bool
 }
 
 type userRepository struct {
@@ -28,9 +30,21 @@ func (r *userRepository) GetUsers() ([]model.UserModel, error) {
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
-	err := r.db.Create(&user).Error
+	err := r.db.Table("users").Create(&user.User).Error
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (r *userRepository) ExistsByEmail(email string) bool {
+	var count int64
+	r.db.Table("users").Where("email = ?", email).Count(&count)
+	return count > 0
+}
+
+func (r *userRepository) ExistsByPhone(phone string) bool {
+	var count int64
+	r.db.Table("users").Where("phone = ?", phone).Count(&count)
+	return count > 0
 }
