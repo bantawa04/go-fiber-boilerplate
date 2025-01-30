@@ -15,13 +15,13 @@ type UserController interface {
 
 type userController struct {
 	userService service.UserService
-	validator   validator.Validator
+	validator   validator.UserValidator
 }
 
 func NewUserController(userService service.UserService) UserController {
 	return &userController{
 		userService: userService,
-		validator:   validator.NewValidator(),
+		validator:   validator.NewUserValidator(),
 	}
 }
 func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
@@ -47,9 +47,9 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	if errors := ctrl.validator.ValidateStruct(reqData); len(errors) > 0 {
+	if errors := ctrl.validator.Validate.Struct(reqData); errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"errors":  errors,
+			"errors":  ctrl.validator.GenerateValidationResponse(errors),
 			"message": "Invalid input information",
 		})
 	}
@@ -70,7 +70,9 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	createdUser, err := ctrl.userService.CreateUser(&reqData.UserModel)
+	// Convert request data to model and create user
+	userModel := reqData.ToModel()
+	createdUser, err := ctrl.userService.CreateUser(userModel)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   err.Error(),

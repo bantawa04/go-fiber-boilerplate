@@ -1,4 +1,4 @@
-package router
+package api  // Changed from 'router' to 'api'
 
 import (
 	"github.com/bantawao4/gofiber-boilerplate/app/controller"
