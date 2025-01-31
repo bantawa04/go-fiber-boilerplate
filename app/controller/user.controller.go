@@ -43,8 +43,9 @@ func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
 	if err != nil || perPage < 1 {
 		perPage = 10
 	}
+	searchQuery := c.Query("search","")
 
-	users, meta, err := ctrl.userService.GetUsers(page, perPage)
+	users, meta, err := ctrl.userService.GetUsers(page, perPage, searchQuery)
 	if err != nil {
 		return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch users")
 	}

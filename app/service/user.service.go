@@ -9,7 +9,7 @@ import (
 )
 
 type UserService interface {
-	GetUsers(page, perPage int) ([]model.UserModel, *response.PaginationMeta, error)
+	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
@@ -33,8 +33,8 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{userRepo: userRepo}
 }
 
-func (s *userService) GetUsers(page, perPage int) ([]model.UserModel, *response.PaginationMeta, error) {
-	users, total, err := s.userRepo.GetUsers(page, perPage)
+func (s *userService) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error) {
+	users, total, err := s.userRepo.GetUsers(page, perPage, searchQuery)
 	if err != nil {
 		return nil, nil, err
 	}

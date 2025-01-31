@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	GetUsers(page, perPage int) ([]model.UserModel, int64, error)
+	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, int64, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	GetUserById(userId string) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
@@ -24,23 +24,32 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) GetUsers(page, perPage int) ([]model.UserModel, int64, error) {
-	var users []model.UserModel
-	var total int64
+func (r *userRepository) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, int64, error) {
+    var users []model.UserModel
+    var total int64
+    
+    query := r.db.Model(&model.UserModel{})
+    
+    // Add search condition if searchQuery is not empty
+    if searchQuery != "" {
+        query = query.Where("full_name ILIKE ? OR email ILIKE ?", 
+            "%"+searchQuery+"%", 
+            "%"+searchQuery+"%")
+    }
 
-	// Get total count
-	if err := r.db.Model(&model.UserModel{}).Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
+    // Get total count
+    if err := query.Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
 
-	// Get paginated data
-	offset := (page - 1) * perPage
-	err := r.db.Model(&model.UserModel{}).Offset(offset).Limit(perPage).Scan(&users).Error
-	if err != nil {
-		return nil, 0, err
-	}
+    // Get paginated data
+    offset := (page - 1) * perPage
+    err := query.Offset(offset).Limit(perPage).Scan(&users).Error
+    if err != nil {
+        return nil, 0, err
+    }
 
-	return users, total, err
+    return users, total, err
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
