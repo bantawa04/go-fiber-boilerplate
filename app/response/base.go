@@ -35,7 +35,7 @@ func SuccessResponse(c *fiber.Ctx, status int, message string) error {
 	})
 }
 
-func SuccessDataResponse(c *fiber.Ctx, status int, message string, data interface{}) error {
+func SuccessDataResponse(c *fiber.Ctx, status int, data interface{}, message string) error {
 	return c.Status(status).JSON(fiber.Map{
 		"message": message,
 		"data":    data,
@@ -43,7 +43,7 @@ func SuccessDataResponse(c *fiber.Ctx, status int, message string, data interfac
 	})
 }
 
-func SuccessPaginationResponse(c *fiber.Ctx, status int, message string, data interface{}, meta interface{}) error {
+func SuccessPaginationResponse(c *fiber.Ctx, status int, data interface{}, meta interface{}, message string) error {
 	return c.Status(status).JSON(fiber.Map{
 		"message": message,
 		"data":    data,

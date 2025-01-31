@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/bantawao4/gofiber-boilerplate/app/dto"
 	"github.com/bantawao4/gofiber-boilerplate/app/request"
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
 	"github.com/bantawao4/gofiber-boilerplate/app/service"
@@ -48,7 +49,7 @@ func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch users")
 	}
 
-	return response.SuccessPaginationResponse(c, fiber.StatusOK, "Users fetched successfully", users, meta)
+	return response.SuccessPaginationResponse(c, fiber.StatusOK, dto.ToUserListResponse(users), meta, "Users fetched successfully")
 }
 
 func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
@@ -76,7 +77,7 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to create user")
 	}
 
-	return response.SuccessDataResponse(c, fiber.StatusCreated, "User Created Successfully", createdUser)
+	return response.SuccessDataResponse(c, fiber.StatusCreated, dto.ToUserResponse(createdUser), "User Created Successfully")
 }
 
 func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
@@ -91,5 +92,5 @@ func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 		return response.ErrorResponse(c, fiber.StatusNotFound, fmt.Errorf("user not found"), "User not found")
 	}
 
-	return response.SuccessDataResponse(c, fiber.StatusOK, "User fetched successfully", user)
+	return response.SuccessDataResponse(c, fiber.StatusOK, dto.ToUserResponse(user), "User fetched successfully")
 }
