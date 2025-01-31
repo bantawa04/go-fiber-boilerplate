@@ -1,4 +1,4 @@
-package api  // Changed from 'router' to 'api'
+package api // Changed from 'router' to 'api'
 
 import (
 	"github.com/bantawao4/gofiber-boilerplate/app/controller"
@@ -27,4 +27,5 @@ func (r *UserRouter) Setup(api fiber.Router) {
 	users := api.Group("/users")
 	users.Get("", r.userController.GetUsers)
 	users.Post("", r.userController.CreateUser)
+	users.Get("/:id", r.userController.GetUserByID)
 }

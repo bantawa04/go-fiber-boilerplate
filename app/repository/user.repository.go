@@ -1,15 +1,15 @@
 package repository
 
 import (
-	"github.com/bantawao4/gofiber-boilerplate/app/dao"
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/config"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	GetUsers(page, perPage int) ([]dao.User, int64, error)
+	GetUsers(page, perPage int) ([]model.UserModel, int64, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
+	GetUserById(userId string) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
 }
@@ -24,18 +24,18 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) GetUsers(page, perPage int) ([]dao.User, int64, error) {
-	var users []dao.User
+func (r *userRepository) GetUsers(page, perPage int) ([]model.UserModel, int64, error) {
+	var users []model.UserModel
 	var total int64
 
 	// Get total count
-	if err := r.db.Table("users").Count(&total).Error; err != nil {
+	if err := r.db.Model(&model.UserModel{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	// Get paginated data
 	offset := (page - 1) * perPage
-	err := r.db.Table("users").Offset(offset).Limit(perPage).Scan(&users).Error
+	err := r.db.Model(&model.UserModel{}).Offset(offset).Limit(perPage).Scan(&users).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -44,7 +44,7 @@ func (r *userRepository) GetUsers(page, perPage int) ([]dao.User, int64, error) 
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
-	err := r.db.Table("users").Create(&user.User).Error
+	err := r.db.Create(user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -53,12 +53,23 @@ func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, er
 
 func (r *userRepository) ExistsByEmail(email string) bool {
 	var count int64
-	r.db.Table("users").Where("email = ?", email).Count(&count)
+	r.db.Model(&model.UserModel{}).Where("email = ?", email).Count(&count)
 	return count > 0
 }
 
 func (r *userRepository) ExistsByPhone(phone string) bool {
 	var count int64
-	r.db.Table("users").Where("phone = ?", phone).Count(&count)
+	r.db.Model(&model.UserModel{}).Where("phone = ?", phone).Count(&count)
 	return count > 0
+}
+func (r *userRepository) GetUserById(userId string) (*model.UserModel, error) {
+	var user model.UserModel
+	err := r.db.Model(&model.UserModel{}).Where("id = ?", userId).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }

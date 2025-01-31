@@ -15,6 +15,7 @@ import (
 type UserController interface {
 	GetUsers(c *fiber.Ctx) error
 	CreateUser(c *fiber.Ctx) error
+	GetUserByID(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -76,4 +77,19 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 	}
 
 	return response.SuccessDataResponse(c, fiber.StatusCreated, "User Created Successfully", createdUser)
+}
+
+func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	user, err := ctrl.userService.GetUserById(id)
+	if err != nil {
+		return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch user")
+	}
+
+	if user == nil {
+		return response.ErrorResponse(c, fiber.StatusNotFound, fmt.Errorf("user not found"), "User not found")
+	}
+
+	return response.SuccessDataResponse(c, fiber.StatusOK, "User fetched successfully", user)
 }

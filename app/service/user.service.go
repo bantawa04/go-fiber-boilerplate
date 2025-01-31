@@ -3,18 +3,21 @@ package service
 import (
 	"math"
 
-	"github.com/bantawao4/gofiber-boilerplate/app/dao"
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/app/repository"
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
-	GetUsers(page, perPage int) ([]dao.User, *response.PaginationMeta, error)
+	GetUsers(page, perPage int) ([]model.UserModel, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
+	GetUserById(id string) (*model.UserModel, error)
+}
+
+type userService struct {
+	userRepo repository.UserRepository
 }
 
 // Add implementations for ExistsByEmail and ExistsByPhone
@@ -26,15 +29,11 @@ func (s *userService) ExistsByPhone(phone string) bool {
 	return s.userRepo.ExistsByPhone(phone)
 }
 
-type userService struct {
-	userRepo repository.UserRepository
-}
-
 func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{userRepo: userRepo}
 }
 
-func (s *userService) GetUsers(page, perPage int) ([]dao.User, *response.PaginationMeta, error) {
+func (s *userService) GetUsers(page, perPage int) ([]model.UserModel, *response.PaginationMeta, error) {
 	users, total, err := s.userRepo.GetUsers(page, perPage)
 	if err != nil {
 		return nil, nil, err
@@ -52,14 +51,9 @@ func (s *userService) GetUsers(page, perPage int) ([]dao.User, *response.Paginat
 }
 
 func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
-	// Explicitly update the password
-	user.Password = string(hashedPassword)
-
-	// Save the user with the hashed password
 	return s.userRepo.CreateUser(user)
+}
+
+func (s *userService) GetUserById(id string) (*model.UserModel, error) {
+	return s.userRepo.GetUserById(id)
 }
