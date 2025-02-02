@@ -37,37 +37,66 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 }
 
 func (s *userService) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error) {
-    users, total, err := s.userRepo.GetUsers(page, perPage, searchQuery)
-    if err != nil {
-        return nil, nil, errors.NewInternalError(err)
-    }
+	users, total, err := s.userRepo.GetUsers(page, perPage, searchQuery)
+	if err != nil {
+		return nil, nil, errors.NewInternalError(err)
+	}
 
-    if len(users) == 0 {
-        return users, &response.PaginationMeta{
-            Page:       page,
-            PerPage:    perPage,
-            TotalPages: 0,
-            TotalItems: 0,
-        }, nil
-    }
+	if len(users) == 0 {
+		return users, &response.PaginationMeta{
+			Page:       page,
+			PerPage:    perPage,
+			TotalPages: 0,
+			TotalItems: 0,
+		}, nil
+	}
 
-    totalPages := int(math.Ceil(float64(total) / float64(perPage)))
-    meta := &response.PaginationMeta{
-        Page:       page,
-        PerPage:    perPage,
-        TotalPages: totalPages,
-        TotalItems: total,
-    }
+	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
+	meta := &response.PaginationMeta{
+		Page:       page,
+		PerPage:    perPage,
+		TotalPages: totalPages,
+		TotalItems: total,
+	}
 
-    return users, meta, nil
+	return users, meta, nil
 }
 
 func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error) {
-	return s.userRepo.CreateUser(user)
+	if user == nil {
+		return nil, errors.NewBadRequestError("User data cannot be empty")
+	}
+
+	// Business validations
+	if s.ExistsByEmail(user.Email) {
+		return nil, errors.NewConflictError("Email already exists")
+	}
+
+	if s.ExistsByPhone(user.Phone) {
+		return nil, errors.NewConflictError("Phone number already exists")
+	}
+
+	createdUser, err := s.userRepo.CreateUser(user)
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+
+	return createdUser, nil
 }
 
 func (s *userService) GetUserById(id string) (*model.UserModel, error) {
-	return s.userRepo.GetUserById(id)
+    if id == "" {
+        return nil, errors.NewBadRequestError("User ID cannot be empty")
+    }
+
+    user, err := s.userRepo.GetUserById(id)
+    if err != nil {
+        return nil, errors.NewInternalError(err)
+    }
+    if user == nil {
+        return nil, errors.NewNotFoundError("User not found")
+    }
+    return user, nil
 }
 
 // Update the implementation to match interface
