@@ -37,20 +37,29 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 }
 
 func (s *userService) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error) {
-	users, total, err := s.userRepo.GetUsers(page, perPage, searchQuery)
-	if err != nil {
-		return nil, nil, err
-	}
+    users, total, err := s.userRepo.GetUsers(page, perPage, searchQuery)
+    if err != nil {
+        return nil, nil, errors.NewInternalError(err)
+    }
 
-	totalPages := int(math.Ceil(float64(total) / float64(perPage)))
-	meta := &response.PaginationMeta{
-		Page:       page,
-		PerPage:    perPage,
-		TotalPages: totalPages,
-		TotalItems: total,
-	}
+    if len(users) == 0 {
+        return users, &response.PaginationMeta{
+            Page:       page,
+            PerPage:    perPage,
+            TotalPages: 0,
+            TotalItems: 0,
+        }, nil
+    }
 
-	return users, meta, nil
+    totalPages := int(math.Ceil(float64(total) / float64(perPage)))
+    meta := &response.PaginationMeta{
+        Page:       page,
+        PerPage:    perPage,
+        TotalPages: totalPages,
+        TotalItems: total,
+    }
+
+    return users, meta, nil
 }
 
 func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error) {

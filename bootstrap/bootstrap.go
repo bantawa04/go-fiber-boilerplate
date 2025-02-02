@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/bantawao4/gofiber-boilerplate/app/middleware"
 	"github.com/bantawao4/gofiber-boilerplate/config"
 	"github.com/bantawao4/gofiber-boilerplate/router"
 	"github.com/gofiber/fiber/v2"
@@ -13,18 +14,18 @@ import (
 )
 
 func NewApplication() *fiber.App {
-
 	app := fiber.New(fiber.Config{
 		Prefork:       true,
 		CaseSensitive: true,
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
 		AppName:       "Test App v1.0.1",
+		ErrorHandler:  middleware.ErrorHandler, // Add this line
 	})
+
 	config.ConnectDb()
 
 	app.Use(idempotency.New())
-
 	app.Use(recover.New())
 
 	// Log errors (status code >= 400) to error.log
@@ -32,7 +33,6 @@ func NewApplication() *fiber.App {
 	if err != nil {
 		log.Fatalf("error opening error log file: %v", err)
 	}
-	// Remove the defer here as we want the file to stay open
 
 	// Add general logger for all requests
 	app.Use(logger.New())

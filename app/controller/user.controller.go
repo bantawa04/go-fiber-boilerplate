@@ -33,25 +33,25 @@ func NewUserController(userService service.UserService) UserController {
 }
 
 func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
-	// Get page from query, default to 1
-	page, err := strconv.Atoi(c.Query("page", "1"))
-	if err != nil || page < 1 {
-		page = 1
-	}
+    page, err := strconv.Atoi(c.Query("page", "1"))
+    if err != nil || page < 1 {
+        page = 1
+    }
 
-	// Get perPage from query, default to 10
-	perPage, err := strconv.Atoi(c.Query("perPage", "10"))
-	if err != nil || perPage < 1 {
-		perPage = 10
-	}
-	searchQuery := c.Query("search","")
+    perPage, err := strconv.Atoi(c.Query("perPage", "10"))
+    if err != nil || perPage < 1 {
+        perPage = 10
+    }
+    
+    searchQuery := c.Query("search", "")
 
-	users, meta, err := ctrl.userService.GetUsers(page, perPage, searchQuery)
-	if err != nil {
-		return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch users")
-	}
+    users, meta, err := ctrl.userService.GetUsers(page, perPage, searchQuery)
+	
+    if err != nil {
+        return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch users")
+    }
 
-	return response.SuccessPaginationResponse(c, fiber.StatusOK, dto.ToUserListResponse(users), meta, "Users fetched successfully")
+    return response.SuccessPaginationResponse(c, fiber.StatusOK, dto.ToUserListResponse(users), meta, "Users fetched successfully")
 }
 
 func (ctrl *userController) CreateUser(c *fiber.Ctx) error {

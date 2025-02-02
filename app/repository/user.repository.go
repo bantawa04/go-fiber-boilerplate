@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/config"
 	"gorm.io/gorm"
@@ -26,31 +28,29 @@ func NewUserRepository() UserRepository {
 }
 
 func (r *userRepository) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, int64, error) {
-	var users []model.UserModel
-	var total int64
+    var users []model.UserModel
+    var total int64
 
-	query := r.db.Model(&model.UserModel{})
+    query := r.db.Model(&model.UserModel{})
 
-	// Add search condition if searchQuery is not empty
-	if searchQuery != "" {
-		query = query.Where("full_name ILIKE ? OR email ILIKE ?",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%")
-	}
+    if searchQuery != "" {
+        query = query.Where("full_name ILIKE ? OR email ILIKE ?",
+            "%"+searchQuery+"%",
+            "%"+searchQuery+"%")
+    }
 
-	// Get total count
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
+    // Get total count
+    if err := query.Count(&total).Error; err != nil {
+        return nil, 0, fmt.Errorf("failed to count users: %w", err)
+    }
 
-	// Get paginated data
-	offset := (page - 1) * perPage
-	err := query.Offset(offset).Limit(perPage).Scan(&users).Error
-	if err != nil {
-		return nil, 0, err
-	}
+    // Get paginated data
+    offset := (page - 1) * perPage
+    if err := query.Offset(offset).Limit(perPage).Scan(&users).Error; err != nil {
+        return nil, 0, fmt.Errorf("failed to fetch users: %w", err)
+    }
 
-	return users, total, err
+    return users, total, nil
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
