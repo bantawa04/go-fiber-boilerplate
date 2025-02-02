@@ -45,7 +45,7 @@ func (r *userRepository) GetUsers(page, perPage int, searchQuery string) ([]mode
 	// Get paginated data
 	offset := (page - 1) * perPage
 	if err := query.Offset(offset).Limit(perPage).Scan(&users).Error; err != nil {
-		return nil, 0, err // Changed from fmt.Errorf to raw error
+		return nil, 0, err
 	}
 
 	return users, total, nil
@@ -54,7 +54,7 @@ func (r *userRepository) GetUsers(page, perPage int, searchQuery string) ([]mode
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
 	err := r.db.Create(user).Error
 	if err != nil {
-		return nil, err // Just return the original error
+		return nil, err
 	}
 	return user, nil
 }
@@ -64,9 +64,9 @@ func (r *userRepository) GetUserById(userId string) (*model.UserModel, error) {
 	err := r.db.Model(&model.UserModel{}).Where("id = ?", userId).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil // Return nil for not found
+			return nil, nil
 		}
-		return nil, err // Just return the original error
+		return nil, err
 	}
 	return &user, nil
 }
@@ -74,7 +74,7 @@ func (r *userRepository) GetUserById(userId string) (*model.UserModel, error) {
 func (r *userRepository) UpdateUser(user *model.UserModel) (*model.UserModel, error) {
 	err := r.db.Model(&model.UserModel{}).Where("id = ?", user.ID).Updates(user).Error
 	if err != nil {
-		return nil, err // Just return the original error
+		return nil, err
 	}
 	return user, nil
 }
