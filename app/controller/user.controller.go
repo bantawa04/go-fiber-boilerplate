@@ -4,10 +4,12 @@ import (
 	"strconv"
 
 	"github.com/bantawao4/gofiber-boilerplate/app/dto"
+	"github.com/bantawao4/gofiber-boilerplate/app/middleware"
 	"github.com/bantawao4/gofiber-boilerplate/app/request"
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
 	"github.com/bantawao4/gofiber-boilerplate/app/service"
 	"github.com/bantawao4/gofiber-boilerplate/app/validator"
+	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -54,8 +56,10 @@ func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
 }
 
 func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
-	reqData := new(request.CreateUserRequestData)
+	// Get transaction from context
+	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
 
+	reqData := new(request.CreateUserRequestData)
 	if err := c.BodyParser(reqData); err != nil {
 		return err
 	}
@@ -66,7 +70,8 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 	}
 
 	userModel := reqData.ToModel()
-	createdUser, err := ctrl.userService.CreateUser(userModel)
+
+	createdUser, err := ctrl.userService.WithTrx(tx).CreateUser(userModel)
 	if err != nil {
 		return err
 	}
@@ -88,9 +93,9 @@ func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 }
 
 func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
+	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
 	id := c.Params("id")
 
-	// Parse and validate request data
 	reqData := new(request.UpdateUserRequestData)
 	if err := c.BodyParser(reqData); err != nil {
 		return err
@@ -101,8 +106,7 @@ func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 			ctrl.validator.GenerateValidationResponse(errors))
 	}
 
-	// Update user data from request
-	updatedUser, err := ctrl.userService.UpdateUser(id, reqData.ToModel())
+	updatedUser, err := ctrl.userService.WithTrx(tx).UpdateUser(id, reqData.ToModel())
 	if err != nil {
 		return err
 	}
@@ -112,9 +116,10 @@ func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 }
 
 func (ctrl *userController) DeleteUser(c *fiber.Ctx) error {
+	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
 	id := c.Params("id")
 
-	err := ctrl.userService.DeleteUser(id)
+	err := ctrl.userService.WithTrx(tx).DeleteUser(id)
 	if err != nil {
 		return err
 	}

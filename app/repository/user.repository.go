@@ -10,10 +10,19 @@ type UserRepository interface {
 	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, int64, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	GetUserById(userId string) (*model.UserModel, error)
-	ExistsByEmail(email string) bool
-	ExistsByPhone(phone string) bool
+	GetUserByEmail(email string) bool
+	GetUserByPhone(phone string) bool
 	UpdateUser(user *model.UserModel) (*model.UserModel, error)
 	DeleteUser(id string) error
+	WithTrx(tx *gorm.DB) UserRepository
+}
+
+func (r *userRepository) WithTrx(tx *gorm.DB) UserRepository {
+	if tx == nil {
+		return r
+	}
+	r.db = tx
+	return r
 }
 
 type userRepository struct {
@@ -80,13 +89,13 @@ func (r *userRepository) UpdateUser(user *model.UserModel) (*model.UserModel, er
 	return user, nil
 }
 
-func (r *userRepository) ExistsByEmail(email string) bool {
+func (r *userRepository) GetUserByEmail(email string) bool {
 	var count int64
 	r.db.Model(&model.UserModel{}).Where("email = ?", email).Count(&count)
 	return count > 0
 }
 
-func (r *userRepository) ExistsByPhone(phone string) bool {
+func (r *userRepository) GetUserByPhone(phone string) bool {
 	var count int64
 	r.db.Model(&model.UserModel{}).Where("phone = ?", phone).Count(&count)
 	return count > 0

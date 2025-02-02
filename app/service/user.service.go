@@ -7,28 +7,35 @@ import (
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/app/repository"
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
 	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
-	ExistsByEmail(email string) bool
-	ExistsByPhone(phone string) bool
+	GetUserByEmail(email string) bool
+	GetUserByPhone(phone string) bool
 	GetUserById(id string) (*model.UserModel, error)
 	UpdateUser(id string, user *model.UserModel) (*model.UserModel, error)
 	DeleteUser(id string) error
+	WithTrx(tx *gorm.DB) UserService
+}
+
+func (s *userService) WithTrx(tx *gorm.DB) UserService {
+	s.userRepo = s.userRepo.WithTrx(tx)
+	return s
 }
 
 type userService struct {
 	userRepo repository.UserRepository
 }
 
-func (s *userService) ExistsByEmail(email string) bool {
-	return s.userRepo.ExistsByEmail(email)
+func (s *userService) GetUserByEmail(email string) bool {
+	return s.userRepo.GetUserByEmail(email)
 }
 
 func (s *userService) ExistsByPhone(phone string) bool {
-	return s.userRepo.ExistsByPhone(phone)
+	return s.userRepo.GetUserByPhone(phone)
 }
 
 func NewUserService(userRepo repository.UserRepository) UserService {
@@ -61,16 +68,20 @@ func (s *userService) GetUsers(page, perPage int, searchQuery string) ([]model.U
 	return users, meta, nil
 }
 
+func (s *userService) GetUserByPhone(phone string) bool {
+	return s.userRepo.GetUserByPhone(phone)
+}
+
 func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error) {
 	if user == nil {
 		return nil, errors.NewBadRequestError("User data cannot be empty")
 	}
 
-	if s.ExistsByEmail(user.Email) {
+	if s.GetUserByEmail(user.Email) {
 		return nil, errors.NewConflictError("Email already exists")
 	}
 
-	if s.ExistsByPhone(user.Phone) {
+	if s.GetUserByPhone(user.Phone) { 
 		return nil, errors.NewConflictError("Phone number already exists")
 	}
 
@@ -107,7 +118,7 @@ func (s *userService) UpdateUser(id string, updateData *model.UserModel) (*model
 	}
 
 	if updateData.Email != "" && updateData.Email != existingUser.Email {
-		if s.ExistsByEmail(updateData.Email) {
+		if s.GetUserByEmail(updateData.Email) {
 			return nil, errors.NewConflictError("Email already in use")
 		}
 	}

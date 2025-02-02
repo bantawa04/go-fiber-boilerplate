@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/bantawao4/gofiber-boilerplate/app/controller"
+	"github.com/bantawao4/gofiber-boilerplate/app/middleware"
 	"github.com/bantawao4/gofiber-boilerplate/app/repository"
 	"github.com/bantawao4/gofiber-boilerplate/app/service"
 	"github.com/gofiber/fiber/v2"
@@ -26,8 +27,8 @@ func NewUserRouter(app *fiber.App) *UserRouter {
 func (r *UserRouter) Setup(api fiber.Router) {
 	users := api.Group("/users")
 	users.Get("", r.userController.GetUsers)
-	users.Post("", r.userController.CreateUser)
+	users.Post("", middleware.DBTransactionHandler(), r.userController.CreateUser)
 	users.Get("/:id", r.userController.GetUserByID)
-	users.Put("/:id", r.userController.UpdateUser)
-	users.Delete("/:id", r.userController.DeleteUser)
+	users.Put("/:id", middleware.DBTransactionHandler(), r.userController.UpdateUser)
+	users.Delete("/:id", middleware.DBTransactionHandler(), r.userController.DeleteUser)
 }

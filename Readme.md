@@ -13,6 +13,7 @@ A robust Go Fiber boilerplate following the Repository Pattern, designed for bui
 - **Migration tool**: [Migrate](https://github.com/golang-migrate/migrate) for running migration
 - **Database**: PostgreSQL
 - **Task Runner**: Makefile for common commands
+- **Database Transaction**: Middleware-based transaction handling for write operations (Create, Update, Delete) with automatic commit/rollback based on response status
 
 ## Project Structure
 | Directory | Description |
