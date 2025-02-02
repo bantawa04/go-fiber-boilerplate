@@ -3,17 +3,20 @@ package service
 import (
 	"math"
 
+	"github.com/bantawao4/gofiber-boilerplate/app/errors"
 	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"github.com/bantawao4/gofiber-boilerplate/app/repository"
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
 )
 
+// Update the interface definition
 type UserService interface {
 	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
 	GetUserById(id string) (*model.UserModel, error)
+	UpdateUser(id string, user *model.UserModel) (*model.UserModel, error) // Changed signature
 }
 
 type userService struct {
@@ -56,4 +59,37 @@ func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error
 
 func (s *userService) GetUserById(id string) (*model.UserModel, error) {
 	return s.userRepo.GetUserById(id)
+}
+
+// Update the implementation to match interface
+func (s *userService) UpdateUser(id string, updateData *model.UserModel) (*model.UserModel, error) {
+	existingUser, err := s.userRepo.GetUserById(id)
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+	if existingUser == nil {
+		return nil, errors.NewNotFoundError("User not found")
+	}
+
+	if updateData.Email != "" && updateData.Email != existingUser.Email {
+		if s.ExistsByEmail(updateData.Email) {
+			return nil, errors.NewConflictError("Email already in use")
+		}
+	}
+
+	// Update only the fields that are provided
+	if updateData.FullName != "" {
+		existingUser.FullName = updateData.FullName
+	}
+	if updateData.Phone != "" {
+		existingUser.Phone = updateData.Phone
+	}
+	if updateData.Gender != "" {
+		existingUser.Gender = updateData.Gender
+	}
+	if updateData.Email != "" {
+		existingUser.Email = updateData.Email
+	}
+
+	return s.userRepo.UpdateUser(existingUser)
 }

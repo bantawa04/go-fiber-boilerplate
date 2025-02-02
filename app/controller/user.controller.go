@@ -17,6 +17,7 @@ type UserController interface {
 	GetUsers(c *fiber.Ctx) error
 	CreateUser(c *fiber.Ctx) error
 	GetUserByID(c *fiber.Ctx) error
+	UpdateUser (c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -94,4 +95,34 @@ func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 	}
 
 	return response.SuccessDataResponse(c, fiber.StatusOK, dto.ToUserResponse(user), "User fetched successfully")
+}
+
+func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
+    id := c.Params("id")
+    
+    // Validate if user exists
+    user, err := ctrl.userService.GetUserById(id)
+    if err != nil {
+        return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to fetch user")
+    }
+    if user == nil {
+        return response.ErrorResponse(c, fiber.StatusNotFound, fmt.Errorf("user not found"), "User not found")
+    }
+
+    // Parse and validate request data
+    reqData := new(request.UpdateUserRequestData)
+    if err := c.BodyParser(reqData); err != nil {
+        return response.ErrorResponse(c, fiber.StatusBadRequest, err, "Failed to bind user data")
+    }
+    if errors := ctrl.validator.Validate.Struct(reqData); errors != nil {
+        return response.ValidationErrorResponse(c, ctrl.validator.GenerateValidationResponse(errors))
+    }
+
+    // Update user data from request
+    updatedUser, err := ctrl.userService.UpdateUser(id, reqData.ToModel())
+    if err != nil {
+        return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Failed to update user")
+    }
+
+    return response.SuccessDataResponse(c, fiber.StatusOK, dto.ToUserResponse(updatedUser), "User updated successfully")
 }

@@ -28,4 +28,5 @@ func (r *UserRouter) Setup(api fiber.Router) {
 	users.Get("", r.userController.GetUsers)
 	users.Post("", r.userController.CreateUser)
 	users.Get("/:id", r.userController.GetUserByID)
+	users.Put("/:id", r.userController.UpdateUser)
 }

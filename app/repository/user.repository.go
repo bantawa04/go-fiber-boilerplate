@@ -12,6 +12,7 @@ type UserRepository interface {
 	GetUserById(userId string) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
+	UpdateUser(user *model.UserModel) (*model.UserModel, error)
 }
 
 type userRepository struct {
@@ -25,31 +26,31 @@ func NewUserRepository() UserRepository {
 }
 
 func (r *userRepository) GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, int64, error) {
-    var users []model.UserModel
-    var total int64
-    
-    query := r.db.Model(&model.UserModel{})
-    
-    // Add search condition if searchQuery is not empty
-    if searchQuery != "" {
-        query = query.Where("full_name ILIKE ? OR email ILIKE ?", 
-            "%"+searchQuery+"%", 
-            "%"+searchQuery+"%")
-    }
+	var users []model.UserModel
+	var total int64
 
-    // Get total count
-    if err := query.Count(&total).Error; err != nil {
-        return nil, 0, err
-    }
+	query := r.db.Model(&model.UserModel{})
 
-    // Get paginated data
-    offset := (page - 1) * perPage
-    err := query.Offset(offset).Limit(perPage).Scan(&users).Error
-    if err != nil {
-        return nil, 0, err
-    }
+	// Add search condition if searchQuery is not empty
+	if searchQuery != "" {
+		query = query.Where("full_name ILIKE ? OR email ILIKE ?",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%")
+	}
 
-    return users, total, err
+	// Get total count
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated data
+	offset := (page - 1) * perPage
+	err := query.Offset(offset).Limit(perPage).Scan(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, err
 }
 
 func (r *userRepository) CreateUser(user *model.UserModel) (*model.UserModel, error) {
@@ -71,6 +72,7 @@ func (r *userRepository) ExistsByPhone(phone string) bool {
 	r.db.Model(&model.UserModel{}).Where("phone = ?", phone).Count(&count)
 	return count > 0
 }
+
 func (r *userRepository) GetUserById(userId string) (*model.UserModel, error) {
 	var user model.UserModel
 	err := r.db.Model(&model.UserModel{}).Where("id = ?", userId).First(&user).Error
@@ -81,4 +83,12 @@ func (r *userRepository) GetUserById(userId string) (*model.UserModel, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *userRepository) UpdateUser(user *model.UserModel) (*model.UserModel, error) {
+	err := r.db.Model(&model.UserModel{}).Where("id = ?", user.ID).Updates(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
