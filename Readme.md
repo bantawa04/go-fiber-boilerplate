@@ -15,26 +15,26 @@ A robust Go Fiber boilerplate following the Repository Pattern, designed for bui
 - **Task Runner**: Makefile for common commands
 
 ## Project Structure
-.
-├── app/
-│   ├── constants/     # Application constants
-│   ├── controller/    # HTTP request handlers
-│   ├── dao/          # Data Access Objects
-│   ├── dto/          # Data Transfer Objects
-│   ├── errors/       # Custom error definitions
-│   ├── middleware/   # HTTP middleware
-│   ├── model/        # Database models
-│   ├── repository/   # Data access layer
-│   ├── request/      # Request models
-│   ├── response/     # Response models
-│   ├── service/      # Business logic
-│   └── validator/    # Request validation
-├── bootstrap/        # Application bootstrap
-├── config/          # Configuration
-├── database/        # Database migrations
-├── docker/         # Docker configurations
-├── router/         # Route definitions
-└── utils/          # Utility functions
+| Directory | Description |
+|-----------|-------------|
+| `app/constants` | Application constants |
+| `app/controller` | HTTP request handlers |
+| `app/dao` | Data Access Objects |
+| `app/dto` | Data Transfer Objects |
+| `app/errors` | Custom error definitions |
+| `app/middleware` | HTTP middleware |
+| `app/model` | Database models |
+| `app/repository` | Data access layer |
+| `app/request` | Request models |
+| `app/response` | Response models |
+| `app/service` | Business logic |
+| `app/validator` | Request validation |
+| `bootstrap` | Application bootstrap |
+| `config` | Configuration |
+| `database` | Database migrations |
+| `docker` | Docker configurations |
+| `router` | Route definitions |
+| `utils` | Utility functions |
 
 
 ## Prerequisites
