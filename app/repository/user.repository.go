@@ -13,6 +13,7 @@ type UserRepository interface {
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
 	UpdateUser(user *model.UserModel) (*model.UserModel, error)
+	DeleteUser(id string) error
 }
 
 type userRepository struct {
@@ -89,4 +90,9 @@ func (r *userRepository) ExistsByPhone(phone string) bool {
 	var count int64
 	r.db.Model(&model.UserModel{}).Where("phone = ?", phone).Count(&count)
 	return count > 0
+}
+
+// Update implementation
+func (r *userRepository) DeleteUser(id string) error {
+	return r.db.Delete(&model.UserModel{}, "id = ?", id).Error
 }

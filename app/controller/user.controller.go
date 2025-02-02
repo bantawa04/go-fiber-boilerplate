@@ -17,6 +17,7 @@ type UserController interface {
 	CreateUser(c *fiber.Ctx) error
 	GetUserByID(c *fiber.Ctx) error
 	UpdateUser(c *fiber.Ctx) error
+	DeleteUser(c *fiber.Ctx) error
 }
 
 type userController struct {
@@ -108,4 +109,15 @@ func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 
 	return response.SuccessDataResponse(c, fiber.StatusOK,
 		dto.ToUserResponse(updatedUser), "User updated successfully")
+}
+
+func (ctrl *userController) DeleteUser(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	err := ctrl.userService.DeleteUser(id)
+	if err != nil {
+		return err
+	}
+
+	return response.SuccessResponse(c, fiber.StatusOK, "User deleted successfully")
 }

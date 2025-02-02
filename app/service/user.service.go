@@ -9,21 +9,20 @@ import (
 	"github.com/bantawao4/gofiber-boilerplate/app/response"
 )
 
-// Update the interface definition
 type UserService interface {
 	GetUsers(page, perPage int, searchQuery string) ([]model.UserModel, *response.PaginationMeta, error)
 	CreateUser(user *model.UserModel) (*model.UserModel, error)
 	ExistsByEmail(email string) bool
 	ExistsByPhone(phone string) bool
 	GetUserById(id string) (*model.UserModel, error)
-	UpdateUser(id string, user *model.UserModel) (*model.UserModel, error) // Changed signature
+	UpdateUser(id string, user *model.UserModel) (*model.UserModel, error)
+	DeleteUser(id string) error
 }
 
 type userService struct {
 	userRepo repository.UserRepository
 }
 
-// Add implementations for ExistsByEmail and ExistsByPhone
 func (s *userService) ExistsByEmail(email string) bool {
 	return s.userRepo.ExistsByEmail(email)
 }
@@ -67,7 +66,6 @@ func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error
 		return nil, errors.NewBadRequestError("User data cannot be empty")
 	}
 
-	// Business validations
 	if s.ExistsByEmail(user.Email) {
 		return nil, errors.NewConflictError("Email already exists")
 	}
@@ -85,21 +83,20 @@ func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error
 }
 
 func (s *userService) GetUserById(id string) (*model.UserModel, error) {
-    if id == "" {
-        return nil, errors.NewBadRequestError("User ID cannot be empty")
-    }
+	if id == "" {
+		return nil, errors.NewBadRequestError("User ID cannot be empty")
+	}
 
-    user, err := s.userRepo.GetUserById(id)
-    if err != nil {
-        return nil, errors.NewInternalError(err)
-    }
-    if user == nil {
-        return nil, errors.NewNotFoundError("User not found")
-    }
-    return user, nil
+	user, err := s.userRepo.GetUserById(id)
+	if err != nil {
+		return nil, errors.NewInternalError(err)
+	}
+	if user == nil {
+		return nil, errors.NewNotFoundError("User not found")
+	}
+	return user, nil
 }
 
-// Update the implementation to match interface
 func (s *userService) UpdateUser(id string, updateData *model.UserModel) (*model.UserModel, error) {
 	existingUser, err := s.userRepo.GetUserById(id)
 	if err != nil {
@@ -115,7 +112,6 @@ func (s *userService) UpdateUser(id string, updateData *model.UserModel) (*model
 		}
 	}
 
-	// Update only the fields that are provided
 	if updateData.FullName != "" {
 		existingUser.FullName = updateData.FullName
 	}
@@ -130,4 +126,16 @@ func (s *userService) UpdateUser(id string, updateData *model.UserModel) (*model
 	}
 
 	return s.userRepo.UpdateUser(existingUser)
+}
+
+func (s *userService) DeleteUser(id string) error {
+	existingUser, err := s.userRepo.GetUserById(id)
+	if err != nil {
+		return errors.NewInternalError(err)
+	}
+	if existingUser == nil {
+		return errors.NewNotFoundError("User not found")
+	}
+
+	return s.userRepo.DeleteUser(id)
 }

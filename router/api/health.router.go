@@ -1,4 +1,4 @@
-package api  // Changed from 'router' to 'api'
+package api
 
 import "github.com/gofiber/fiber/v2"
 

@@ -1,4 +1,4 @@
-package api // Changed from 'router' to 'api'
+package api
 
 import (
 	"github.com/bantawao4/gofiber-boilerplate/app/controller"
@@ -29,4 +29,5 @@ func (r *UserRouter) Setup(api fiber.Router) {
 	users.Post("", r.userController.CreateUser)
 	users.Get("/:id", r.userController.GetUserByID)
 	users.Put("/:id", r.userController.UpdateUser)
+	users.Delete("/:id", r.userController.DeleteUser)
 }
