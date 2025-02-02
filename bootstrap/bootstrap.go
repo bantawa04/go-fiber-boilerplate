@@ -7,6 +7,7 @@ import (
 	"github.com/bantawao4/gofiber-boilerplate/app/middleware"
 	"github.com/bantawao4/gofiber-boilerplate/config"
 	"github.com/bantawao4/gofiber-boilerplate/router"
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/idempotency"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -22,7 +23,15 @@ func NewApplication() *fiber.App {
 		AppName:       "Test App v1.0.1",
 		ErrorHandler:  middleware.ErrorHandler, // Add this line
 	})
+	cfg := swagger.Config{
+		BasePath: "/",
+		FilePath: "./docs/swagger.json",
+		Path:     "swagger",
+		Title:    "Swagger API Docs",
+		CacheAge: 60,
+	}
 
+	app.Use(swagger.New(cfg))
 	config.ConnectDb()
 
 	app.Use(idempotency.New())
@@ -50,7 +59,6 @@ func NewApplication() *fiber.App {
 			}
 		},
 	}))
-
 	router.Setup(app)
 
 	return app

@@ -11,7 +11,7 @@ services:
     container_name: web
     volumes:
       - .:/app
-    command: air main.go -b 0.0.0.0
+    command: sh -c "swag init && air main.go -b 0.0.0.0"
     depends_on:
       - database
     restart: unless-stopped

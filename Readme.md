@@ -14,6 +14,7 @@ A robust Go Fiber boilerplate following the Repository Pattern, designed for bui
 - **Database**: PostgreSQL
 - **Task Runner**: Makefile for common commands
 - **Database Transaction**: Middleware-based transaction handling for write operations (Create, Update, Delete) with automatic commit/rollback based on response status
+- **Swagger**: API documentation using [Swagger](github.com/gofiber/contrib/swagger)
 
 ## Project Structure
 | Directory | Description |

@@ -1,0 +1,87 @@
+basePath: /api
+definitions:
+  dto.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.PaginationMeta:
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalItems:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  response.PaginationResponse:
+    properties:
+      data: {}
+      meta:
+        $ref: '#/definitions/response.PaginationMeta'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: your-email@domain.com
+    name: API Support
+  description: This is a sample swagger for Fiber Boilerplate
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Fiber Boilerplate API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of users with optional search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: perPage
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users fetched successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.PaginationResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserResponse'
+                  type: array
+              type: object
+      summary: Get list of users
+      tags:
+      - users
+swagger: "2.0"

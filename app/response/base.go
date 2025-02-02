@@ -20,6 +20,11 @@ type PaginationMeta struct {
 	TotalItems int64 `json:"totalItems"`
 }
 
+type PaginationResponse struct {
+	Data interface{}    `json:"data"`
+	Meta PaginationMeta `json:"meta"`
+}
+
 func ErrorResponse(c *fiber.Ctx, status int, err error, message string) error {
 	return c.Status(status).JSON(fiber.Map{
 		"error":   err.Error(),

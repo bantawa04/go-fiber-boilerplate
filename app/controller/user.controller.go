@@ -34,6 +34,17 @@ func NewUserController(userService service.UserService) UserController {
 	}
 }
 
+// GetUsers godoc
+// @Summary Get list of users
+// @Description Get paginated list of users with optional search
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param perPage query int false "Number of items per page" default(10)
+// @Param search query string false "Search query"
+// @Success 200 {object} response.PaginationResponse{data=[]dto.UserResponse} "Users fetched successfully"
+// @Router /users [get]
 func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page < 1 {
