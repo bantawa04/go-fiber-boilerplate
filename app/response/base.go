@@ -25,10 +25,27 @@ type PaginationResponse struct {
 	Meta PaginationMeta `json:"meta"`
 }
 
+type SuccessData struct {
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+type Success struct {
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+type ErrorData struct {
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
+// Update the response functions to return a cleaner structure
+
 func ErrorResponse(c *fiber.Ctx, status int, err error, message string) error {
 	return c.Status(status).JSON(fiber.Map{
-		"error":   err.Error(),
 		"message": message,
+		"error":   err.Error(),
 		"success": false,
 	})
 }
@@ -52,15 +69,15 @@ func SuccessPaginationResponse(c *fiber.Ctx, status int, data interface{}, meta 
 	return c.Status(status).JSON(fiber.Map{
 		"message": message,
 		"data":    data,
-		"meta":    meta,
+		"meta":    *meta.(*PaginationMeta),
 		"success": true,
 	})
 }
 
 func ValidationErrorResponse(c *fiber.Ctx, errors interface{}) error {
 	return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-		"errors":  errors,
 		"message": "Invalid input information",
+		"errors":  errors,
 		"success": false,
 	})
 }

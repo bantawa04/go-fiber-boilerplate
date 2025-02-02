@@ -66,6 +66,17 @@ func (ctrl *userController) GetUsers(c *fiber.Ctx) error {
 	return response.SuccessPaginationResponse(c, fiber.StatusOK, dto.ToUserListResponse(users), meta, "Users fetched successfully")
 }
 
+// CreateUser godoc
+// @Summary Create new user
+// @Description Create new user with the provided data
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body request.CreateUserRequestData true "User data"
+// @Success 201 {object} response.SuccessData{data=dto.UserResponse} "User created successfully"
+// @Failure 400 {object} response.ErrorData "Bad request"
+// @Failure 422 {object} response.Response{errors=[]response.ValidationError} "Validation error"
+// @Router /users [post]
 func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 	// Get transaction from context
 	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
@@ -91,6 +102,16 @@ func (ctrl *userController) CreateUser(c *fiber.Ctx) error {
 		dto.ToUserResponse(createdUser), "User Created Successfully")
 }
 
+// GetUserByID godoc
+// @Summary Get user by ID
+// @Description Get user details by user ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} response.SuccessData{data=dto.UserResponse} "User fetched successfully"
+// @Failure 400 {object} response.ErrorData "Bad request"
+// @Router /users/{id} [get]
 func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -103,6 +124,18 @@ func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 		dto.ToUserResponse(user), "User fetched successfully")
 }
 
+// UpdateUser godoc
+// @Summary Update user
+// @Description Update user details by ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param user body request.UpdateUserRequestData true "User data"
+// @Success 200 {object}  response.SuccessData{data=dto.UserResponse} "User updated successfully"
+// @Failure 400 {object} response.ErrorData "Bad request"
+// @Failure 422 {object} response.ValidationErrorData "Validation error"
+// @Router /users/{id} [put]
 func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
 	id := c.Params("id")
@@ -126,6 +159,16 @@ func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 		dto.ToUserResponse(updatedUser), "User updated successfully")
 }
 
+// DeleteUser godoc
+// @Summary Delete user
+// @Description Delete user by ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} response.Success "User deleted successfully"
+// @Failure 400 {object} response.ErrorData "Bad request"
+// @Router /users/{id} [delete]
 func (ctrl *userController) DeleteUser(c *fiber.Ctx) error {
 	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)
 	id := c.Params("id")

@@ -17,6 +17,44 @@ definitions:
       updated_at:
         type: string
     type: object
+  request.CreateUserRequestData:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      gender:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+    required:
+    - email
+    - full_name
+    - gender
+    - password
+    - phone
+    type: object
+  request.UpdateUserRequestData:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      gender:
+        type: string
+      phone:
+        type: string
+    type: object
+  response.ErrorData:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
   response.PaginationMeta:
     properties:
       page:
@@ -33,6 +71,39 @@ definitions:
       data: {}
       meta:
         $ref: '#/definitions/response.PaginationMeta'
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  response.Success:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  response.SuccessData:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  response.ValidationError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  response.ValidationErrorData:
+    properties:
+      errors: {}
+      message:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -82,6 +153,140 @@ paths:
                   type: array
               type: object
       summary: Get list of users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create new user with the provided data
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUserRequestData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+        "422":
+          description: Validation error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                errors:
+                  items:
+                    $ref: '#/definitions/response.ValidationError'
+                  type: array
+              type: object
+      summary: Create new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get user details by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User fetched successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user details by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUserRequestData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/response.ValidationErrorData'
+      summary: Update user
       tags:
       - users
 swagger: "2.0"
