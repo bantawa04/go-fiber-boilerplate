@@ -1,5 +1,18 @@
 basePath: /api
 definitions:
+  dto.TodoResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   dto.UserResponse:
     properties:
       created_at:
@@ -16,6 +29,22 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  request.CreateTodoRequest:
+    properties:
+      status:
+        enum:
+        - pending
+        - in_progress
+        - completed
+        type: string
+      title:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - status
+    - title
     type: object
   request.CreateUserRequestData:
     properties:
@@ -99,12 +128,6 @@ definitions:
       message:
         type: string
     type: object
-  response.ValidationErrorData:
-    properties:
-      errors: {}
-      message:
-        type: string
-    type: object
 host: localhost:8080
 info:
   contact:
@@ -118,6 +141,177 @@ info:
   title: Fiber Boilerplate API
   version: "1.0"
 paths:
+  /todos:
+    get:
+      consumes:
+      - application/json
+      description: Get paginated list of todos with optional search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: perPage
+        type: integer
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todos fetched successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.PaginationResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TodoResponse'
+                  type: array
+              type: object
+      summary: Get list of todos
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create new todo with the provided data
+      parameters:
+      - description: Todo data
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Todo created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TodoResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+        "422":
+          description: Validation error
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                errors:
+                  items:
+                    $ref: '#/definitions/response.ValidationError'
+                  type: array
+              type: object
+      summary: Create new todo
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete todo by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todo deleted successfully
+          schema:
+            $ref: '#/definitions/response.Success'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+      summary: Delete todo
+      tags:
+      - todos
+    get:
+      consumes:
+      - application/json
+      description: Get todo details by todo ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todo fetched successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TodoResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+      summary: Get todo by ID
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Update todo details by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Todo data
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todo updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.SuccessData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TodoResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorData'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/response.ValidationError'
+      summary: Update todo
+      tags:
+      - todos
   /users:
     get:
       consumes:
@@ -285,7 +479,7 @@ paths:
         "422":
           description: Validation error
           schema:
-            $ref: '#/definitions/response.ValidationErrorData'
+            $ref: '#/definitions/response.ValidationError'
       summary: Update user
       tags:
       - users

@@ -134,7 +134,7 @@ func (ctrl *userController) GetUserByID(c *fiber.Ctx) error {
 // @Param user body request.UpdateUserRequestData true "User data"
 // @Success 200 {object}  response.SuccessData{data=dto.UserResponse} "User updated successfully"
 // @Failure 400 {object} response.ErrorData "Bad request"
-// @Failure 422 {object} response.ValidationErrorData "Validation error"
+// @Failure 422 {object} response.ValidationError "Validation error"
 // @Router /users/{id} [put]
 func (ctrl *userController) UpdateUser(c *fiber.Ctx) error {
 	tx := c.Locals(middleware.DBTransaction).(*gorm.DB)

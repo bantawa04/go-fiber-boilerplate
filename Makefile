@@ -21,3 +21,4 @@ dao:
 		gentool -db postgres -dsn ${DB_DSN} -fieldNullable -fieldWithIndexTag -fieldWithTypeTag -fieldSignable -onlyModel -outPath "./app/dao" -modelPkgName "dao"
 
 .PHONY: dao migrate.create migrate.down migrate.force migrate.up
+

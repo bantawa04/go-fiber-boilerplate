@@ -27,8 +27,8 @@ func NewUserRouter(app *fiber.App) *UserRouter {
 func (r *UserRouter) Setup(api fiber.Router) {
 	users := api.Group("/users")
 	users.Get("", r.userController.GetUsers)
-	users.Post("", middleware.DBTransactionHandler(), r.userController.CreateUser)
 	users.Get("/:id", r.userController.GetUserByID)
+	users.Post("", middleware.DBTransactionHandler(), r.userController.CreateUser)
 	users.Put("/:id", middleware.DBTransactionHandler(), r.userController.UpdateUser)
 	users.Delete("/:id", middleware.DBTransactionHandler(), r.userController.DeleteUser)
 }

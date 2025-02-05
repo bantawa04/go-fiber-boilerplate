@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"github.com/bantawao4/gofiber-boilerplate/app/model"
 	"time"
+
+	"github.com/bantawao4/gofiber-boilerplate/app/model"
 )
 
 type UserResponse struct {
@@ -28,7 +29,7 @@ func ToUserResponse(user *model.UserModel) *UserResponse {
 }
 
 func ToUserListResponse(users []model.UserModel) []UserResponse {
-	var response []UserResponse
+	response := make([]UserResponse, 0)
 	for _, user := range users {
 		response = append(response, *ToUserResponse(&user))
 	}
