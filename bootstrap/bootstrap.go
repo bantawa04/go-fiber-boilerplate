@@ -21,7 +21,7 @@ func NewApplication() *fiber.App {
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
 		AppName:       "Test App v1.0.1",
-		ErrorHandler:  middleware.ErrorHandler, // Add this line
+		ErrorHandler:  middleware.ErrorHandler,
 	})
 	cfg := swagger.Config{
 		BasePath: "/",

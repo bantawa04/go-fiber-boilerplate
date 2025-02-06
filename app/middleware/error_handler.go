@@ -11,6 +11,10 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 		return response.ErrorResponse(c, appErr.Code, appErr.Err, appErr.Message)
 	}
 
+	if err.Error() == "Cannot "+c.Method()+" "+c.Path() {
+		return response.ErrorResponse(c, fiber.StatusNotFound, err, "Route not found")
+	}
+
 	// Handle default error
 	return response.ErrorResponse(c, fiber.StatusInternalServerError, err, "Internal Server Error")
 }
