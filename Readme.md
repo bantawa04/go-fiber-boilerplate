@@ -50,3 +50,15 @@ A robust Go Fiber boilerplate following the Repository Pattern, designed for bui
 ```bash
 git clone https://github.com/yourusername/fiber-boilerplate.git
 cd fiber-boilerplate
+```
+
+2. Set up your environment variables
+```bash
+cp .env.example .env
+```
+
+3. Build the docker image, install dependency and run project
+```bash
+docker-compose build && docker-compose up -d
+```
+
