@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -45,17 +46,16 @@ func NewApplication() *fiber.App {
 
 	// Add general logger for all requests
 	app.Use(logger.New())
-
-	// Add specific error logger
 	app.Use(logger.New(logger.Config{
-		TimeZone: "UTC",
-		Format:   "[${time}] ${status} ${latency} ${method} ${path}\n",
+		TimeFormat: "2006-01-02 15:04:05",
+		TimeZone:   "Local",
+		Format:     "\n" + `{"timestamp":"${time}", "status":${status}, "latency":"${latency}", "method":"${method}", "path":"${path}", "error":"${error}", "response":[${resBody}]}`,
+		Output:     errorLogFile,
 		Done: func(c *fiber.Ctx, logString []byte) {
 			if c.Response().StatusCode() >= 400 {
-				_, err := errorLogFile.Write(logString)
-				if err != nil {
-					log.Printf("failed to write to error log: %v", err)
-				}
+				fmt.Println("printing to error.log")
+				errorLogFile.Write(logString)
+				defer errorLogFile.Close()
 			}
 		},
 	}))
