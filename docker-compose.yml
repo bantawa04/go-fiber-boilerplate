@@ -13,12 +13,12 @@ services:
       - .:/app
     command: air main.go -b 0.0.0.0
     depends_on:
-      - pgdatabase
+      - database
     restart: unless-stopped
 
   pgdatabase:
     image: postgres:alpine
-    container_name: pgdatabase
+    container_name: database
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
