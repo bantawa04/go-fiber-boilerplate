@@ -22,8 +22,10 @@ type UserService interface {
 }
 
 func (s *userService) WithTrx(tx *gorm.DB) UserService {
-	s.userRepo = s.userRepo.WithTrx(tx)
-	return s
+	newService := &userService{
+		userRepo: s.userRepo.WithTrx(tx),
+	}
+	return newService
 }
 
 type userService struct {
@@ -81,7 +83,7 @@ func (s *userService) CreateUser(user *model.UserModel) (*model.UserModel, error
 		return nil, errors.NewConflictError("Email already exists")
 	}
 
-	if s.GetUserByPhone(user.Phone) { 
+	if s.GetUserByPhone(user.Phone) {
 		return nil, errors.NewConflictError("Phone number already exists")
 	}
 
