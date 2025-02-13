@@ -29,8 +29,11 @@ func (r *todoRepository) WithTrx(tx *gorm.DB) TodoRepository {
 	if tx == nil {
 		return r
 	}
-	r.db = tx
-	return r
+	// Create a new instance instead of modifying the existing one
+	newRepo := &todoRepository{
+		db: tx,
+	}
+	return newRepo
 }
 
 func (r *todoRepository) GetTodos(page, perPage int, searchQuery string) ([]model.TodoModel, int64, error) {

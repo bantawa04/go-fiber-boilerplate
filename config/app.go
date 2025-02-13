@@ -15,6 +15,8 @@ type Env struct {
 	SERVER_PORT string `mapstructure:"SERVER_PORT"`
 	DBUrl       string `mapstructure:"DATABASE_URL"`
 	TimeZone    string `mapstructure:"TZ"`
+	LogStack     string `mapstructure:"LOG_STACK"`
+	LogRetention int    `mapstructure:"LOG_RETENTION"`
 }
 
 // NewEnv creates a new environment

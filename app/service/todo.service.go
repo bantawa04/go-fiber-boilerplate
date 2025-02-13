@@ -28,8 +28,10 @@ func NewTodoService(todoRepo repository.TodoRepository) TodoService {
 }
 
 func (s *todoService) WithTrx(tx *gorm.DB) TodoService {
-	s.todoRepo = s.todoRepo.WithTrx(tx)
-	return s
+	newService := &todoService{
+		todoRepo: s.todoRepo.WithTrx(tx),
+	}
+	return newService
 }
 
 func (s *todoService) GetTodos(page, perPage int, searchQuery string) ([]model.TodoModel, *response.PaginationMeta, error) {

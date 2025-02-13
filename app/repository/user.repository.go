@@ -21,8 +21,11 @@ func (r *userRepository) WithTrx(tx *gorm.DB) UserRepository {
 	if tx == nil {
 		return r
 	}
-	r.db = tx
-	return r
+	// Create a new instance instead of modifying the existing one
+	newRepo := &userRepository{
+		db: tx,
+	}
+	return newRepo
 }
 
 type userRepository struct {
